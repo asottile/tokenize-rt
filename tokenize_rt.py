@@ -55,13 +55,18 @@ def main(argv=None):
     args = parser.parse_args(argv)
     with io.open(args.filename) as f:
         tokens = src_to_tokens(f.read())
+
+    def no_u_repr(s):
+        return repr(s).lstrip('u')
+
     for token in tokens:
         if token.name == UNIMPORTANT_WS:
-            print('?:? {} {!r}'.format(token.name, token.src))
+            line, col = '?', '?'
         else:
-            print('{}:{} {} {!r}'.format(
-                token.line, token.utf8_byte_offset, token.name, token.src,
-            ))
+            line, col = token.line, token.utf8_byte_offset
+        print('{}:{} {} {}'.format(
+            line, col, token.name, no_u_repr(token.src),
+        ))
 
 
 if __name__ == '__main__':
