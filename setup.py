@@ -4,7 +4,7 @@ setup(
     name='tokenize-rt',
     description='A wrapper around the stdlib `tokenize` which roundtrips.',
     url='https://github.com/asottile/tokenize-rt',
-    version='0.0.0',
+    version='1.0.0',
     author='Anthony Sottile',
     author_email='asottile@umich.edu',
     classifiers=[
