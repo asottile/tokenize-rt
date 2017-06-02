@@ -21,7 +21,7 @@ python tokenization.
 
 ### `tokenize_rt.tokens_to_src(Sequence[Token]) -> text`
 
-### `tokenize.UNIMPORTANT_WS`
+### `tokenize_rt.UNIMPORTANT_WS`
 
 ### `tokenize_rt.Token(name, src, line=None, utf8_byte_offset=None)`
 
