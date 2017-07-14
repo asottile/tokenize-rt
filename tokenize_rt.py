@@ -7,6 +7,7 @@ import io
 import tokenize
 
 
+ESCAPED_NL = 'ESCAPED_NL'
 UNIMPORTANT_WS = 'UNIMPORTANT_WS'
 Token = collections.namedtuple(
     'Token', ('name', 'src', 'line', 'utf8_byte_offset'),
@@ -32,8 +33,16 @@ def src_to_tokens(src):
                 newtok += lines[lineno]
             if scol > 0:
                 newtok += lines[sline][:scol]
+
+            # a multiline unimportant whitespace may contain escaped newlines
+            while '\\\n' in newtok:
+                ws, nl, newtok = newtok.partition('\\\n')
+                if ws:
+                    tokens.append(Token(UNIMPORTANT_WS, ws))
+                tokens.append(Token(ESCAPED_NL, nl))
             if newtok:
                 tokens.append(Token(UNIMPORTANT_WS, newtok))
+
         elif scol > last_col:
             tokens.append(Token(UNIMPORTANT_WS, line[last_col:scol]))
 
