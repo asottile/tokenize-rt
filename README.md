@@ -5,8 +5,9 @@ tokenize-rt
 ===========
 
 The stdlib `tokenize` module does not properly roundtrip.  This wrapper
-around the stdlib provides an additional token `UNIMPORTANT_WS`, and a `Token`
-data type.  Use `src_to_tokens` and `tokens_to_src` to roundtrip.
+around the stdlib provides two additional tokens `ESCAPED_NL` and
+`UNIMPORTANT_WS`, and a `Token` data type.  Use `src_to_tokens` and
+`tokens_to_src` to roundtrip.
 
 This library is useful if you're writing a refactoring tool based on the
 python tokenization.
@@ -21,6 +22,8 @@ python tokenization.
 
 ### `tokenize_rt.tokens_to_src(Sequence[Token]) -> text`
 
+### `tokenize_rt.ECSAPED_NL`
+
 ### `tokenize_rt.UNIMPORTANT_WS`
 
 ### `tokenize_rt.Token(name, src, line=None, utf8_byte_offset=None)`
@@ -28,9 +31,9 @@ python tokenization.
 Construct a token
 
 - `name`: one of the token names listed in `token.tok_name` or
-  `UNIMPORTANT_WS`
+  `ESCAPED_NL` or `UNIMPORTANT_WS`
 - `src`: token's source as text
 - `line`: the line number that this token appears on.  This will be `None` for
-   `UNIMPORTANT_WS` tokens.
+   `ESCAPED_NL` and `UNIMPORTANT_WS` tokens.
 - `utf8_byte_offset`: the utf8 byte offset that this token appears on in the
-  line.  This will be `None` for `UNIMPORTANT_WS` tokens.
+  line.  This will be `None` for `ESCAPED_NL` and `UNIMPORTANT_WS` tokens.
