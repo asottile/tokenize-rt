@@ -2,15 +2,27 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import io
+import re
 
 import pytest
 
+from tokenize_rt import _re_partition
 from tokenize_rt import ESCAPED_NL
 from tokenize_rt import main
 from tokenize_rt import src_to_tokens
 from tokenize_rt import Token
 from tokenize_rt import tokens_to_src
 from tokenize_rt import UNIMPORTANT_WS
+
+
+def test_re_partition_no_match():
+    ret = _re_partition(re.compile('z'), 'abc')
+    assert ret == ('abc', '', '')
+
+
+def test_re_partition_match():
+    ret = _re_partition(re.compile('b'), 'abc')
+    assert ret == ('a', 'b', 'c')
 
 
 def test_src_to_tokens_simple():
@@ -56,6 +68,24 @@ def test_src_to_tokens_escaped_nl_no_left_ws():
         Token(UNIMPORTANT_WS, ' ', line=None, utf8_byte_offset=None),
         Token('OP', '=', line=1, utf8_byte_offset=2),
         Token(ESCAPED_NL, '\\\n', line=None, utf8_byte_offset=None),
+        Token(UNIMPORTANT_WS, '    ', line=None, utf8_byte_offset=None),
+        Token('NUMBER', '5', line=2, utf8_byte_offset=4),
+        Token('ENDMARKER', '', line=3, utf8_byte_offset=0),
+    ]
+
+
+def test_src_to_tokens_escaped_nl_windows():
+    src = (
+        'x = \\\r\n'
+        '    5'
+    )
+    ret = src_to_tokens(src)
+    assert ret == [
+        Token('NAME', 'x', line=1, utf8_byte_offset=0),
+        Token(UNIMPORTANT_WS, ' ', line=None, utf8_byte_offset=None),
+        Token('OP', '=', line=1, utf8_byte_offset=2),
+        Token(UNIMPORTANT_WS, ' ', line=None, utf8_byte_offset=None),
+        Token(ESCAPED_NL, '\\\r\n', line=None, utf8_byte_offset=None),
         Token(UNIMPORTANT_WS, '    ', line=None, utf8_byte_offset=None),
         Token('NUMBER', '5', line=2, utf8_byte_offset=4),
         Token('ENDMARKER', '', line=3, utf8_byte_offset=0),

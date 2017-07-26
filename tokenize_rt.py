@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 import argparse
 import collections
 import io
+import re
 import tokenize
 
 
@@ -13,6 +14,17 @@ Token = collections.namedtuple(
     'Token', ('name', 'src', 'line', 'utf8_byte_offset'),
 )
 Token.__new__.__defaults__ = (None, None,)
+
+
+_escaped_nl_re = re.compile(r'\\(\n|\r\n|\r)')
+
+
+def _re_partition(regex, s):
+    match = regex.search(s)
+    if match:
+        return s[:match.start()], s[slice(*match.span())], s[match.end():]
+    else:
+        return (s, '', '')
 
 
 def src_to_tokens(src):
@@ -35,8 +47,8 @@ def src_to_tokens(src):
                 newtok += lines[sline][:scol]
 
             # a multiline unimportant whitespace may contain escaped newlines
-            while '\\\n' in newtok:
-                ws, nl, newtok = newtok.partition('\\\n')
+            while _escaped_nl_re.search(newtok):
+                ws, nl, newtok = _re_partition(_escaped_nl_re, newtok)
                 if ws:
                     tokens.append(Token(UNIMPORTANT_WS, ws))
                 tokens.append(Token(ESCAPED_NL, nl))
