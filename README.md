@@ -37,3 +37,9 @@ Construct a token
    `ESCAPED_NL` and `UNIMPORTANT_WS` tokens.
 - `utf8_byte_offset`: the utf8 byte offset that this token appears on in the
   line.  This will be `None` for `ESCAPED_NL` and `UNIMPORTANT_WS` tokens.
+
+## Sample usage
+
+- https://github.com/asottile/add-trailing-comma
+- https://github.com/asottile/future-fstrings
+- https://github.com/asottile/pyupgrade
