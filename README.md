@@ -43,3 +43,4 @@ Construct a token
 - https://github.com/asottile/add-trailing-comma
 - https://github.com/asottile/future-fstrings
 - https://github.com/asottile/pyupgrade
+- https://github.com/asottile/yesqa
