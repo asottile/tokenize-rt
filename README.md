@@ -22,7 +22,7 @@ python tokenization.
 
 ### `tokenize_rt.tokens_to_src(Sequence[Token]) -> text`
 
-### `tokenize_rt.ECSAPED_NL`
+### `tokenize_rt.ESCAPED_NL`
 
 ### `tokenize_rt.UNIMPORTANT_WS`
 
