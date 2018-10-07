@@ -9,6 +9,7 @@ import pytest
 from tokenize_rt import _re_partition
 from tokenize_rt import ESCAPED_NL
 from tokenize_rt import main
+from tokenize_rt import Offset
 from tokenize_rt import reversed_enumerate
 from tokenize_rt import src_to_tokens
 from tokenize_rt import Token
@@ -24,6 +25,15 @@ def test_re_partition_no_match():
 def test_re_partition_match():
     ret = _re_partition(re.compile('b'), 'abc')
     assert ret == ('a', 'b', 'c')
+
+
+def test_offset_default_values():
+    assert Offset() == Offset(line=None, utf8_byte_offset=None)
+
+
+def test_token_offset():
+    token = Token('NAME', 'x', line=1, utf8_byte_offset=2)
+    assert token.offset == Offset(line=1, utf8_byte_offset=2)
 
 
 def test_src_to_tokens_simple():
