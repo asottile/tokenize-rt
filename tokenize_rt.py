@@ -70,6 +70,11 @@ def tokens_to_src(tokens):
     return ''.join(tok.src for tok in tokens)
 
 
+def reversed_enumerate(tokens):
+    for i in reversed(range(len(tokens))):
+        yield i, tokens[i]
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser()
     parser.add_argument('filename')

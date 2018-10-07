@@ -38,6 +38,10 @@ Construct a token
 - `utf8_byte_offset`: the utf8 byte offset that this token appears on in the
   line.  This will be `None` for `ESCAPED_NL` and `UNIMPORTANT_WS` tokens.
 
+### `tokenize_rt.reversed_enumerate(Sequence[Token]) -> Iterator[Tuple[int, Token]]`
+
+yields `(index, token)` pairs.  Useful for rewriting source.
+
 ## Sample usage
 
 - https://github.com/asottile/add-trailing-comma

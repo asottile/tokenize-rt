@@ -9,6 +9,7 @@ import pytest
 from tokenize_rt import _re_partition
 from tokenize_rt import ESCAPED_NL
 from tokenize_rt import main
+from tokenize_rt import reversed_enumerate
 from tokenize_rt import src_to_tokens
 from tokenize_rt import Token
 from tokenize_rt import tokens_to_src
@@ -105,6 +106,21 @@ def test_roundtrip_tokenize(filename):
         contents = f.read()
     ret = tokens_to_src(src_to_tokens(contents))
     assert ret == contents
+
+
+def test_reversed_enumerate():
+    tokens = src_to_tokens('x = 5')
+    ret = reversed_enumerate(tokens)
+    assert next(ret) == (5, Token('ENDMARKER', '', line=2, utf8_byte_offset=0))
+
+    rest = list(ret)
+    assert rest == [
+        (4, Token('NUMBER', '5', line=1, utf8_byte_offset=4)),
+        (3, Token(UNIMPORTANT_WS, ' ')),
+        (2, Token('OP', '=', line=1, utf8_byte_offset=2)),
+        (1, Token(UNIMPORTANT_WS, ' ')),
+        (0, Token('NAME', 'x', line=1, utf8_byte_offset=0)),
+    ]
 
 
 def test_main(capsys):
