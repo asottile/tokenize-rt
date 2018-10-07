@@ -10,10 +10,13 @@ import tokenize
 
 ESCAPED_NL = 'ESCAPED_NL'
 UNIMPORTANT_WS = 'UNIMPORTANT_WS'
+Offset = collections.namedtuple('Offset', ('line', 'utf8_byte_offset'))
+Offset.__new__.__defaults__ = (None, None)
 Token = collections.namedtuple(
     'Token', ('name', 'src', 'line', 'utf8_byte_offset'),
 )
-Token.__new__.__defaults__ = (None, None,)
+Token.__new__.__defaults__ = (None, None)
+Token.offset = property(lambda self: Offset(self.line, self.utf8_byte_offset))
 
 
 _escaped_nl_re = re.compile(r'\\(\n|\r\n|\r)')
@@ -68,6 +71,11 @@ def src_to_tokens(src):
 
 def tokens_to_src(tokens):
     return ''.join(tok.src for tok in tokens)
+
+
+def reversed_enumerate(tokens):
+    for i in reversed(range(len(tokens))):
+        yield i, tokens[i]
 
 
 def main(argv=None):
