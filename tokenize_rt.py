@@ -10,6 +10,7 @@ import tokenize
 
 ESCAPED_NL = 'ESCAPED_NL'
 UNIMPORTANT_WS = 'UNIMPORTANT_WS'
+NON_CODING_TOKENS = frozenset(('COMMENT', ESCAPED_NL, 'NL', UNIMPORTANT_WS))
 Offset = collections.namedtuple('Offset', ('line', 'utf8_byte_offset'))
 Offset.__new__.__defaults__ = (None, None)
 Token = collections.namedtuple(

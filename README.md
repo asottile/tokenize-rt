@@ -18,20 +18,14 @@ python tokenization.
 
 ## Usage
 
-### `tokenize_rt.src_to_tokens(text) -> List[Token]`
+### datastructures
 
-### `tokenize_rt.tokens_to_src(Sequence[Token]) -> text`
-
-### `tokenize_rt.ESCAPED_NL`
-
-### `tokenize_rt.UNIMPORTANT_WS`
-
-### `tokenize_rt.Offset(line=None, utf8_byte_offset=None)`
+#### `tokenize_rt.Offset(line=None, utf8_byte_offset=None)`
 
 A token offset, useful as a key when cross referencing the `ast` and the
 tokenized source.
 
-### `tokenize_rt.Token(name, src, line=None, utf8_byte_offset=None)`
+#### `tokenize_rt.Token(name, src, line=None, utf8_byte_offset=None)`
 
 Construct a token
 
@@ -43,11 +37,34 @@ Construct a token
 - `utf8_byte_offset`: the utf8 byte offset that this token appears on in the
   line.  This will be `None` for `ESCAPED_NL` and `UNIMPORTANT_WS` tokens.
 
-### `tokenize_rt.Token.offset`
+#### `tokenize_rt.Token.offset`
 
 Retrieves an `Offset` for this token.
 
-### `tokenize_rt.reversed_enumerate(Sequence[Token]) -> Iterator[Tuple[int, Token]]`
+### converting to and from `Token` representations
+
+#### `tokenize_rt.src_to_tokens(text) -> List[Token]`
+
+#### `tokenize_rt.tokens_to_src(Sequence[Token]) -> text`
+
+### additional tokens added by `tokenize-rt`
+
+#### `tokenize_rt.ESCAPED_NL`
+
+#### `tokenize_rt.UNIMPORTANT_WS`
+
+### helpers
+
+#### `tokenize_rt.NON_CODING_TOKENS`
+
+A `frozenset` containing tokens which may appear between others while not
+affecting control flow or code:
+- `COMMENT`
+- `ESCAPED_NL`
+- `NL`
+- `UNIMPORTANT_WS`
+
+#### `tokenize_rt.reversed_enumerate(Sequence[Token]) -> Iterator[Tuple[int, Token]]`
 
 yields `(index, token)` pairs.  Useful for rewriting source.
 
