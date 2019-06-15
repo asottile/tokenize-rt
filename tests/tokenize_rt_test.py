@@ -106,6 +106,17 @@ def test_src_to_tokens_escaped_nl_windows():
     ]
 
 
+@pytest.mark.parametrize('prefix', ('f', 'ur', 'rb', 'F', 'UR', 'RB'))
+def test_src_to_tokens_string_prefix_normalization(prefix):
+    src = "{}'foo'\n".format(prefix)
+    ret = src_to_tokens(src)
+    assert ret == [
+        Token('STRING', "{}'foo'".format(prefix), line=1, utf8_byte_offset=0),
+        Token('NEWLINE', '\n', line=1, utf8_byte_offset=5 + len(prefix)),
+        Token('ENDMARKER', '', line=2, utf8_byte_offset=0),
+    ]
+
+
 @pytest.mark.parametrize(
     'filename',
     (

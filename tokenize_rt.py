@@ -19,7 +19,7 @@ Token = collections.namedtuple(
 Token.__new__.__defaults__ = (None, None)
 Token.offset = property(lambda self: Offset(self.line, self.utf8_byte_offset))
 
-
+_string_prefixes = frozenset('bfru')
 _escaped_nl_re = re.compile(r'\\(\n|\r\n|\r)')
 
 
@@ -64,7 +64,18 @@ def src_to_tokens(src):
 
         tok_name = tokenize.tok_name[tok_type]
         utf8_byte_offset = len(line[:scol].encode('UTF-8'))
-        tokens.append(Token(tok_name, tok_text, sline, utf8_byte_offset))
+        # when a string prefix is not recognized, the tokenizer produces a
+        # NAME token followed by a STRING token
+        if (
+                tok_name == 'STRING' and
+                tokens and
+                tokens[-1].name == 'NAME' and
+                frozenset(tokens[-1].src.lower()) <= _string_prefixes
+        ):
+            newsrc = tokens[-1].src + tok_text
+            tokens[-1] = tokens[-1]._replace(src=newsrc, name=tok_name)
+        else:
+            tokens.append(Token(tok_name, tok_text, sline, utf8_byte_offset))
         last_line, last_col = eline, ecol
 
     return tokens
