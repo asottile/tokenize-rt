@@ -53,7 +53,7 @@ def test_src_to_tokens_simple():
 def test_src_to_tokens_escaped_nl():
     src = (
         'x = \\\n'
-        '    5'
+        '    5\n'
     )
     ret = src_to_tokens(src)
     assert ret == [
@@ -64,6 +64,7 @@ def test_src_to_tokens_escaped_nl():
         Token(ESCAPED_NL, '\\\n', line=None, utf8_byte_offset=None),
         Token(UNIMPORTANT_WS, '    ', line=None, utf8_byte_offset=None),
         Token('NUMBER', '5', line=2, utf8_byte_offset=4),
+        Token('NEWLINE', '\n', line=2, utf8_byte_offset=5),
         Token('ENDMARKER', '', line=3, utf8_byte_offset=0),
     ]
 
@@ -71,7 +72,7 @@ def test_src_to_tokens_escaped_nl():
 def test_src_to_tokens_escaped_nl_no_left_ws():
     src = (
         'x =\\\n'
-        '    5'
+        '    5\n'
     )
     ret = src_to_tokens(src)
     assert ret == [
@@ -81,6 +82,7 @@ def test_src_to_tokens_escaped_nl_no_left_ws():
         Token(ESCAPED_NL, '\\\n', line=None, utf8_byte_offset=None),
         Token(UNIMPORTANT_WS, '    ', line=None, utf8_byte_offset=None),
         Token('NUMBER', '5', line=2, utf8_byte_offset=4),
+        Token('NEWLINE', '\n', line=2, utf8_byte_offset=5),
         Token('ENDMARKER', '', line=3, utf8_byte_offset=0),
     ]
 
@@ -88,7 +90,7 @@ def test_src_to_tokens_escaped_nl_no_left_ws():
 def test_src_to_tokens_escaped_nl_windows():
     src = (
         'x = \\\r\n'
-        '    5'
+        '    5\r\n'
     )
     ret = src_to_tokens(src)
     assert ret == [
@@ -99,6 +101,7 @@ def test_src_to_tokens_escaped_nl_windows():
         Token(ESCAPED_NL, '\\\r\n', line=None, utf8_byte_offset=None),
         Token(UNIMPORTANT_WS, '    ', line=None, utf8_byte_offset=None),
         Token('NUMBER', '5', line=2, utf8_byte_offset=4),
+        Token('NEWLINE', '\r\n', line=2, utf8_byte_offset=5),
         Token('ENDMARKER', '', line=3, utf8_byte_offset=0),
     ]
 
@@ -119,12 +122,13 @@ def test_roundtrip_tokenize(filename):
 
 
 def test_reversed_enumerate():
-    tokens = src_to_tokens('x = 5')
+    tokens = src_to_tokens('x = 5\n')
     ret = reversed_enumerate(tokens)
-    assert next(ret) == (5, Token('ENDMARKER', '', line=2, utf8_byte_offset=0))
+    assert next(ret) == (6, Token('ENDMARKER', '', line=2, utf8_byte_offset=0))
 
     rest = list(ret)
     assert rest == [
+        (5, Token(name='NEWLINE', src='\n', line=1, utf8_byte_offset=5)),
         (4, Token('NUMBER', '5', line=1, utf8_byte_offset=4)),
         (3, Token(UNIMPORTANT_WS, ' ')),
         (2, Token('OP', '=', line=1, utf8_byte_offset=2)),
