@@ -10,6 +10,7 @@ from tokenize_rt import _re_partition
 from tokenize_rt import ESCAPED_NL
 from tokenize_rt import main
 from tokenize_rt import Offset
+from tokenize_rt import parse_string_literal
 from tokenize_rt import reversed_enumerate
 from tokenize_rt import src_to_tokens
 from tokenize_rt import Token
@@ -185,6 +186,19 @@ def test_reversed_enumerate():
         (1, Token(UNIMPORTANT_WS, ' ')),
         (0, Token('NAME', 'x', line=1, utf8_byte_offset=0)),
     ]
+
+
+@pytest.mark.parametrize(
+    ('s', 'expected'),
+    (
+        ('""', ('', '""')),
+        ('u"foo"', ('u', '"foo"')),
+        ('F"hi"', ('F', '"hi"')),
+        ('r"""x"""', ('r', '"""x"""')),
+    ),
+)
+def test_parse_string_literal(s, expected):
+    assert parse_string_literal(s) == expected
 
 
 def test_main(capsys):

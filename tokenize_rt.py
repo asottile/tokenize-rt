@@ -19,6 +19,7 @@ Token = collections.namedtuple(
 Token.__new__.__defaults__ = (None, None)
 Token.offset = property(lambda self: Offset(self.line, self.utf8_byte_offset))
 
+_string_re = re.compile('^([^\'"]*)(.*)$', re.DOTALL)
 _string_prefixes = frozenset('bfru')
 _escaped_nl_re = re.compile(r'\\(\n|\r\n|\r)')
 
@@ -103,6 +104,12 @@ def tokens_to_src(tokens):
 def reversed_enumerate(tokens):
     for i in reversed(range(len(tokens))):
         yield i, tokens[i]
+
+
+def parse_string_literal(src):
+    """parse a string literal's source into (prefix, string)"""
+    match = _string_re.match(src)
+    return match.group(1), match.group(2)
 
 
 def main(argv=None):

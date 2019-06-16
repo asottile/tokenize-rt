@@ -64,6 +64,15 @@ affecting control flow or code:
 - `NL`
 - `UNIMPORTANT_WS`
 
+#### `tokenize_rt.parse_string_literal(text) -> Tuple[str, str]`
+
+parse a string literal into its prefix and string content
+
+```pycon
+>>> parse_string_literal('f"foo"')
+('f', '"foo"')
+```
+
 #### `tokenize_rt.reversed_enumerate(Sequence[Token]) -> Iterator[Tuple[int, Token]]`
 
 yields `(index, token)` pairs.  Useful for rewriting source.
