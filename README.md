@@ -84,8 +84,6 @@ yields `(index, token)` pairs.  Useful for rewriting source.
 - `tokenize-rt` normalizes string prefixes, even if they are not parsed -- for
   instance, this means you'll see `Token('STRING', "f'foo'", ...)` even in
   python 2.
-- `tokenize-rt` normalizes `DEDENT` tokens so they appear before the
-  indentation instead of after
 
 ## Sample usage
 
