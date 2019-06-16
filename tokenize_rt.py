@@ -75,23 +75,8 @@ def src_to_tokens(src):
         ):
             newsrc = tokens[-1].src + tok_text
             tokens[-1] = tokens[-1]._replace(src=newsrc, name=tok_name)
-        # the DEDENT / UNIMPORTANT_WS tokens are misordered, fix them
-        #    | if True:
-        #    |     if True:
-        #    |         pass
-        #    |     else:
-        #    |^    ^- DEDENT
-        #    |+----UNIMPORTANT_WS
-        elif (
-                tok_name == 'DEDENT' and
-                tokens and
-                tokens[-1].name == UNIMPORTANT_WS
-        ):
-            tok = Token(tok_name, tok_text, sline, utf8_byte_offset)
-            tokens.insert(-1, tok)
         else:
-            tok = Token(tok_name, tok_text, sline, utf8_byte_offset)
-            tokens.append(tok)
+            tokens.append(Token(tok_name, tok_text, sline, utf8_byte_offset))
         last_line, last_col = eline, ecol
 
     return tokens
