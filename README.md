@@ -18,20 +18,14 @@ python tokenization.
 
 ## Usage
 
-### `tokenize_rt.src_to_tokens(text) -> List[Token]`
+### datastructures
 
-### `tokenize_rt.tokens_to_src(Sequence[Token]) -> text`
-
-### `tokenize_rt.ESCAPED_NL`
-
-### `tokenize_rt.UNIMPORTANT_WS`
-
-### `tokenize_rt.Offset(line=None, utf8_byte_offset=None)`
+#### `tokenize_rt.Offset(line=None, utf8_byte_offset=None)`
 
 A token offset, useful as a key when cross referencing the `ast` and the
 tokenized source.
 
-### `tokenize_rt.Token(name, src, line=None, utf8_byte_offset=None)`
+#### `tokenize_rt.Token(name, src, line=None, utf8_byte_offset=None)`
 
 Construct a token
 
@@ -43,13 +37,55 @@ Construct a token
 - `utf8_byte_offset`: the utf8 byte offset that this token appears on in the
   line.  This will be `None` for `ESCAPED_NL` and `UNIMPORTANT_WS` tokens.
 
-### `tokenize_rt.Token.offset`
+#### `tokenize_rt.Token.offset`
 
 Retrieves an `Offset` for this token.
 
-### `tokenize_rt.reversed_enumerate(Sequence[Token]) -> Iterator[Tuple[int, Token]]`
+### converting to and from `Token` representations
+
+#### `tokenize_rt.src_to_tokens(text) -> List[Token]`
+
+#### `tokenize_rt.tokens_to_src(Sequence[Token]) -> text`
+
+### additional tokens added by `tokenize-rt`
+
+#### `tokenize_rt.ESCAPED_NL`
+
+#### `tokenize_rt.UNIMPORTANT_WS`
+
+### helpers
+
+#### `tokenize_rt.NON_CODING_TOKENS`
+
+A `frozenset` containing tokens which may appear between others while not
+affecting control flow or code:
+- `COMMENT`
+- `ESCAPED_NL`
+- `NL`
+- `UNIMPORTANT_WS`
+
+#### `tokenize_rt.parse_string_literal(text) -> Tuple[str, str]`
+
+parse a string literal into its prefix and string content
+
+```pycon
+>>> parse_string_literal('f"foo"')
+('f', '"foo"')
+```
+
+#### `tokenize_rt.reversed_enumerate(Sequence[Token]) -> Iterator[Tuple[int, Token]]`
 
 yields `(index, token)` pairs.  Useful for rewriting source.
+
+## Differences from `tokenize`
+
+- `tokenize-rt` adds `ESCAPED_NL` for a backslash-escaped newline "token"
+- `tokenzie-rt` adds `UNIMPORTANT_WS` for whitespace (discarded in `tokenize`)
+- `tokenize-rt` normalizes string prefixes, even if they are not parsed -- for
+  instance, this means you'll see `Token('STRING', "f'foo'", ...)` even in
+  python 2.
+- `tokenize-rt` normalizes `DEDENT` tokens so they appear before the
+  indentation instead of after
 
 ## Sample usage
 

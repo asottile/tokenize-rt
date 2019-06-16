@@ -10,6 +10,7 @@ import tokenize
 
 ESCAPED_NL = 'ESCAPED_NL'
 UNIMPORTANT_WS = 'UNIMPORTANT_WS'
+NON_CODING_TOKENS = frozenset(('COMMENT', ESCAPED_NL, 'NL', UNIMPORTANT_WS))
 Offset = collections.namedtuple('Offset', ('line', 'utf8_byte_offset'))
 Offset.__new__.__defaults__ = (None, None)
 Token = collections.namedtuple(
@@ -18,7 +19,8 @@ Token = collections.namedtuple(
 Token.__new__.__defaults__ = (None, None)
 Token.offset = property(lambda self: Offset(self.line, self.utf8_byte_offset))
 
-
+_string_re = re.compile('^([^\'"]*)(.*)$', re.DOTALL)
+_string_prefixes = frozenset('bfru')
 _escaped_nl_re = re.compile(r'\\(\n|\r\n|\r)')
 
 
@@ -63,7 +65,33 @@ def src_to_tokens(src):
 
         tok_name = tokenize.tok_name[tok_type]
         utf8_byte_offset = len(line[:scol].encode('UTF-8'))
-        tokens.append(Token(tok_name, tok_text, sline, utf8_byte_offset))
+        # when a string prefix is not recognized, the tokenizer produces a
+        # NAME token followed by a STRING token
+        if (
+                tok_name == 'STRING' and
+                tokens and
+                tokens[-1].name == 'NAME' and
+                frozenset(tokens[-1].src.lower()) <= _string_prefixes
+        ):
+            newsrc = tokens[-1].src + tok_text
+            tokens[-1] = tokens[-1]._replace(src=newsrc, name=tok_name)
+        # the DEDENT / UNIMPORTANT_WS tokens are misordered, fix them
+        #    | if True:
+        #    |     if True:
+        #    |         pass
+        #    |     else:
+        #    |^    ^- DEDENT
+        #    |+----UNIMPORTANT_WS
+        elif (
+                tok_name == 'DEDENT' and
+                tokens and
+                tokens[-1].name == UNIMPORTANT_WS
+        ):
+            tok = Token(tok_name, tok_text, sline, utf8_byte_offset)
+            tokens.insert(-1, tok)
+        else:
+            tok = Token(tok_name, tok_text, sline, utf8_byte_offset)
+            tokens.append(tok)
         last_line, last_col = eline, ecol
 
     return tokens
@@ -76,6 +104,12 @@ def tokens_to_src(tokens):
 def reversed_enumerate(tokens):
     for i in reversed(range(len(tokens))):
         yield i, tokens[i]
+
+
+def parse_string_literal(src):
+    """parse a string literal's source into (prefix, string)"""
+    match = _string_re.match(src)
+    return match.group(1), match.group(2)
 
 
 def main(argv=None):

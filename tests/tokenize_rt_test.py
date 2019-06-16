@@ -10,6 +10,7 @@ from tokenize_rt import _re_partition
 from tokenize_rt import ESCAPED_NL
 from tokenize_rt import main
 from tokenize_rt import Offset
+from tokenize_rt import parse_string_literal
 from tokenize_rt import reversed_enumerate
 from tokenize_rt import src_to_tokens
 from tokenize_rt import Token
@@ -106,6 +107,56 @@ def test_src_to_tokens_escaped_nl_windows():
     ]
 
 
+@pytest.mark.parametrize('prefix', ('f', 'ur', 'rb', 'F', 'UR', 'RB'))
+def test_src_to_tokens_string_prefix_normalization(prefix):
+    src = "{}'foo'\n".format(prefix)
+    ret = src_to_tokens(src)
+    assert ret == [
+        Token('STRING', "{}'foo'".format(prefix), line=1, utf8_byte_offset=0),
+        Token('NEWLINE', '\n', line=1, utf8_byte_offset=5 + len(prefix)),
+        Token('ENDMARKER', '', line=2, utf8_byte_offset=0),
+    ]
+
+
+def test_dedent_fixup():
+    """Move DEDENT tokens to where they make more sense"""
+    src = (
+        'if True:\n'
+        '    if True:\n'
+        '        pass\n'
+        '    else:\n'
+        '        pass\n'
+    )
+    ret = src_to_tokens(src)
+    assert ret == [
+        Token('NAME', 'if', line=1, utf8_byte_offset=0),
+        Token('UNIMPORTANT_WS', ' ', line=None, utf8_byte_offset=None),
+        Token('NAME', 'True', line=1, utf8_byte_offset=3),
+        Token('OP', ':', line=1, utf8_byte_offset=7),
+        Token('NEWLINE', '\n', line=1, utf8_byte_offset=8),
+        Token('INDENT', '    ', line=2, utf8_byte_offset=0),
+        Token('NAME', 'if', line=2, utf8_byte_offset=4),
+        Token('UNIMPORTANT_WS', ' ', line=None, utf8_byte_offset=None),
+        Token('NAME', 'True', line=2, utf8_byte_offset=7),
+        Token('OP', ':', line=2, utf8_byte_offset=11),
+        Token('NEWLINE', '\n', line=2, utf8_byte_offset=12),
+        Token('INDENT', '        ', line=3, utf8_byte_offset=0),
+        Token('NAME', 'pass', line=3, utf8_byte_offset=8),
+        Token('NEWLINE', '\n', line=3, utf8_byte_offset=12),
+        Token('DEDENT', '', line=4, utf8_byte_offset=4),
+        Token('UNIMPORTANT_WS', '    ', line=None, utf8_byte_offset=None),
+        Token('NAME', 'else', line=4, utf8_byte_offset=4),
+        Token('OP', ':', line=4, utf8_byte_offset=8),
+        Token('NEWLINE', '\n', line=4, utf8_byte_offset=9),
+        Token('INDENT', '        ', line=5, utf8_byte_offset=0),
+        Token('NAME', 'pass', line=5, utf8_byte_offset=8),
+        Token('NEWLINE', '\n', line=5, utf8_byte_offset=12),
+        Token('DEDENT', '', line=6, utf8_byte_offset=0),
+        Token('DEDENT', '', line=6, utf8_byte_offset=0),
+        Token('ENDMARKER', '', line=6, utf8_byte_offset=0)
+    ]
+
+
 @pytest.mark.parametrize(
     'filename',
     (
@@ -128,13 +179,26 @@ def test_reversed_enumerate():
 
     rest = list(ret)
     assert rest == [
-        (5, Token(name='NEWLINE', src='\n', line=1, utf8_byte_offset=5)),
+        (5, Token('NEWLINE', '\n', line=1, utf8_byte_offset=5)),
         (4, Token('NUMBER', '5', line=1, utf8_byte_offset=4)),
         (3, Token(UNIMPORTANT_WS, ' ')),
         (2, Token('OP', '=', line=1, utf8_byte_offset=2)),
         (1, Token(UNIMPORTANT_WS, ' ')),
         (0, Token('NAME', 'x', line=1, utf8_byte_offset=0)),
     ]
+
+
+@pytest.mark.parametrize(
+    ('s', 'expected'),
+    (
+        ('""', ('', '""')),
+        ('u"foo"', ('u', '"foo"')),
+        ('F"hi"', ('F', '"hi"')),
+        ('r"""x"""', ('r', '"""x"""')),
+    ),
+)
+def test_parse_string_literal(s, expected):
+    assert parse_string_literal(s) == expected
 
 
 def test_main(capsys):
