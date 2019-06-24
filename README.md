@@ -1,5 +1,5 @@
-[![Build Status](https://travis-ci.org/asottile/tokenize-rt.svg?branch=master)](https://travis-ci.org/asottile/tokenize-rt)
-[![Coverage Status](https://coveralls.io/repos/github/asottile/tokenize-rt/badge.svg?branch=master)](https://coveralls.io/github/asottile/tokenize-rt?branch=master)
+[![Build Status](https://dev.azure.com/asottile/asottile/_apis/build/status/asottile.tokenize-rt?branchName=master)](https://dev.azure.com/asottile/asottile/_build/latest?definitionId=25&branchName=master)
+[![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/asottile/asottile/25/master.svg)](https://dev.azure.com/asottile/asottile/_build/latest?definitionId=25&branchName=master)
 
 tokenize-rt
 ===========
