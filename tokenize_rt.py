@@ -112,9 +112,11 @@ def main(argv=None):
             line, col = '?', '?'
         else:
             line, col = token.line, token.utf8_byte_offset
-        print('{}:{} {} {}'.format(
-            line, col, token.name, no_u_repr(token.src),
-        ))
+        print(
+            '{}:{} {} {}'.format(
+                line, col, token.name, no_u_repr(token.src),
+            ),
+        )
 
 
 if __name__ == '__main__':
