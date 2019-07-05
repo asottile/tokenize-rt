@@ -76,6 +76,21 @@ def src_to_tokens(src):
         ):
             newsrc = tokens[-1].src + tok_text
             tokens[-1] = tokens[-1]._replace(src=newsrc, name=tok_name)
+        # produce octal literals as a single token in python 3 as well
+        elif (
+                tok_name == 'NUMBER' and
+                tokens and
+                tokens[-1].name == 'NUMBER'
+        ):  # pragma: no cover (PY3)
+            tokens[-1] = tokens[-1]._replace(src=tokens[-1].src + tok_text)
+        # produce long literals as a single token in python 3 as well
+        elif (
+                tok_name == 'NAME' and
+                tok_text.lower() == 'l' and
+                tokens and
+                tokens[-1].name == 'NUMBER'
+        ):  # pragma: no cover (PY3)
+            tokens[-1] = tokens[-1]._replace(src=tokens[-1].src + tok_text)
         else:
             tokens.append(Token(tok_name, tok_text, sline, utf8_byte_offset))
         last_line, last_col = eline, ecol
