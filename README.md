@@ -77,6 +77,22 @@ parse a string literal into its prefix and string content
 
 yields `(index, token)` pairs.  Useful for rewriting source.
 
+#### `tokenize_rt.rfind_string_parts(Sequence[Token], i) -> Tuple[int, ...]`
+
+find the indices of the string parts of a (joined) string literal
+
+- `i` should start at the end of the string literal
+- returns `()` (an empty tuple) for things which are not string literals
+
+```pycon
+>>> tokens = src_to_tokens('"foo" "bar".capitalize()')
+>>> rfind_string_parts(tokens, 2)
+(0, 2)
+>>> tokens = src_to_tokens('("foo" "bar").capitalize()')
+>>> rfind_string_parts(tokens, 4)
+(1, 3)
+```
+
 ## Differences from `tokenize`
 
 - `tokenize-rt` adds `ESCAPED_NL` for a backslash-escaped newline "token"
