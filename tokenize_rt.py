@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 import argparse
 import collections
 import io
+import keyword
 import re
 import tokenize
 
@@ -111,6 +112,49 @@ def parse_string_literal(src):
     """parse a string literal's source into (prefix, string)"""
     match = _string_re.match(src)
     return match.group(1), match.group(2)
+
+
+def rfind_string_parts(tokens, i):
+    """find the indicies of the string parts of a (joined) string literal
+
+    - `i` should start at the end of the string literal
+    - returns `()` (an empty tuple) for things which are not string literals
+    """
+    ret = []
+    depth = 0
+    for i in range(i, -1, -1):
+        token = tokens[i]
+        if token.name == 'STRING':
+            ret.append(i)
+        elif token.name in NON_CODING_TOKENS:
+            pass
+        elif token.src == ')':
+            depth += 1
+        elif depth and token.src == '(':
+            depth -= 1
+            # if we closed the paren(s) make sure it was a parenthesized string
+            # and not actually a call
+            if depth == 0:
+                for j in range(i - 1, -1, -1):
+                    tok = tokens[j]
+                    if tok.name in NON_CODING_TOKENS:
+                        pass
+                    # this was actually a call and not a parenthesized string
+                    elif (
+                            tok.src in {']', ')'} or (
+                                tok.name == 'NAME' and
+                                tok.src not in keyword.kwlist
+                            )
+                    ):
+                        return ()
+                    else:
+                        break
+                break
+        elif depth:  # it looked like a string but wasn't
+            return ()
+        else:
+            break
+    return tuple(reversed(ret))
 
 
 def main(argv=None):

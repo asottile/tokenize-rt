@@ -12,6 +12,7 @@ from tokenize_rt import main
 from tokenize_rt import Offset
 from tokenize_rt import parse_string_literal
 from tokenize_rt import reversed_enumerate
+from tokenize_rt import rfind_string_parts
 from tokenize_rt import src_to_tokens
 from tokenize_rt import Token
 from tokenize_rt import tokens_to_src
@@ -180,6 +181,81 @@ def test_reversed_enumerate():
 )
 def test_parse_string_literal(s, expected):
     assert parse_string_literal(s) == expected
+
+
+@pytest.mark.parametrize('src', ('""', "b''", "f''", "r'''.'''"))
+def test_rfind_string_parts_only_literal(src):
+    tokens = src_to_tokens(src)
+    assert rfind_string_parts(tokens, 0) == (0,)
+
+
+@pytest.mark.parametrize(
+    ('src', 'n', 'expected'),
+    (
+        ('"foo" "bar"', 2, (0, 2)),
+        ('"""foo""" "bar"', 2, (0, 2)),
+        (
+            '(\n'
+            '    "foo"\n'
+            '    "bar"\n'
+            ')',
+            8,
+            (3, 6),
+        ),
+        (
+            'print(\n'
+            '    "foo"\n'
+            '    "bar"\n'
+            ')',
+            7,
+            (4, 7),
+        ),
+    ),
+)
+def test_rfind_string_parts_multiple_tokens(src, n, expected):
+    tokens = src_to_tokens(src)
+    assert rfind_string_parts(tokens, n) == expected
+
+
+def test_rfind_string_parts_not_a_string():
+    tokens = src_to_tokens('print')
+    assert rfind_string_parts(tokens, 0) == ()
+
+
+@pytest.mark.parametrize(
+    ('src', 'n'),
+    (
+        #           v
+        ('x(1, "foo")', 6),
+        #         v
+        ('x ("foo")', 4),
+        #           v
+        ('x[0]("foo")', 6),
+        #           v
+        ('x(0)("foo")', 6),
+    ),
+)
+def test_rfind_string_parts_end_of_call_looks_like_string(src, n):
+    tokens = src_to_tokens(src)
+    assert rfind_string_parts(tokens, n) == ()
+
+
+@pytest.mark.parametrize(
+    ('src', 'n', 'expected_i'),
+    (
+        #       v
+        ('("foo")', 2, 1),
+        #           v
+        ('((("foo")))', 6, 3),
+        #           v
+        ('a + ("foo")', 6, 5),
+        #            v
+        ('a or ("foo")', 6, 5),
+    ),
+)
+def test_rfind_string_parts_parenthesized(src, n, expected_i):
+    tokens = src_to_tokens(src)
+    assert rfind_string_parts(tokens, n) == (expected_i,)
 
 
 def test_main(capsys):
