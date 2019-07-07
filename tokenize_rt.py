@@ -26,7 +26,7 @@ class Offset(collections.namedtuple('Offset', ('line', 'utf8_byte_offset'))):
     __slots__ = ()
 
     def __new__(cls, line=None, utf8_byte_offset=None):
-        # type: (Optional[int], Optional[int]) -> None
+        # type: (Optional[int], Optional[int]) -> 'Offset'
         return super(Offset, cls).__new__(cls, line, utf8_byte_offset)
 
 
@@ -38,7 +38,7 @@ class Token(
     __slots__ = ()
 
     def __new__(cls, name, src, line=None, utf8_byte_offset=None):
-        # type: (str, str, Optional[int], Optional[int]) -> None
+        # type: (str, str, Optional[int], Optional[int]) -> 'Token'
         return super(Token, cls).__new__(
             cls, name, src, line, utf8_byte_offset,
         )
