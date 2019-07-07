@@ -43,9 +43,9 @@ Retrieves an `Offset` for this token.
 
 ### converting to and from `Token` representations
 
-#### `tokenize_rt.src_to_tokens(text) -> List[Token]`
+#### `tokenize_rt.src_to_tokens(text: str) -> List[Token]`
 
-#### `tokenize_rt.tokens_to_src(Sequence[Token]) -> text`
+#### `tokenize_rt.tokens_to_src(Iterable[Token]) -> str`
 
 ### additional tokens added by `tokenize-rt`
 
@@ -64,7 +64,7 @@ affecting control flow or code:
 - `NL`
 - `UNIMPORTANT_WS`
 
-#### `tokenize_rt.parse_string_literal(text) -> Tuple[str, str]`
+#### `tokenize_rt.parse_string_literal(text: str) -> Tuple[str, str]`
 
 parse a string literal into its prefix and string content
 

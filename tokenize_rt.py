@@ -8,18 +8,45 @@ import io
 import keyword
 import re
 import tokenize
+from typing import Generator
+from typing import Iterable
+from typing import List
+from typing import Optional
+from typing import Pattern
+from typing import Sequence
+from typing import Tuple
 
 
 ESCAPED_NL = 'ESCAPED_NL'
 UNIMPORTANT_WS = 'UNIMPORTANT_WS'
 NON_CODING_TOKENS = frozenset(('COMMENT', ESCAPED_NL, 'NL', UNIMPORTANT_WS))
-Offset = collections.namedtuple('Offset', ('line', 'utf8_byte_offset'))
-Offset.__new__.__defaults__ = (None, None)
-Token = collections.namedtuple(
-    'Token', ('name', 'src', 'line', 'utf8_byte_offset'),
-)
-Token.__new__.__defaults__ = (None, None)
-Token.offset = property(lambda self: Offset(self.line, self.utf8_byte_offset))
+
+
+class Offset(collections.namedtuple('Offset', ('line', 'utf8_byte_offset'))):
+    __slots__ = ()
+
+    def __new__(cls, line=None, utf8_byte_offset=None):
+        # type: (Optional[int], Optional[int]) -> None
+        return super(Offset, cls).__new__(cls, line, utf8_byte_offset)
+
+
+class Token(
+    collections.namedtuple(
+        'Token', ('name', 'src', 'line', 'utf8_byte_offset'),
+    ),
+):
+    __slots__ = ()
+
+    def __new__(cls, name, src, line=None, utf8_byte_offset=None):
+        # type: (str, str, Optional[int], Optional[int]) -> None
+        return super(Token, cls).__new__(
+            cls, name, src, line, utf8_byte_offset,
+        )
+
+    @property
+    def offset(self):  # type: () -> Offset
+        return Offset(self.line, self.utf8_byte_offset)
+
 
 _string_re = re.compile('^([^\'"]*)(.*)$', re.DOTALL)
 _string_prefixes = frozenset('bfru')
@@ -27,6 +54,7 @@ _escaped_nl_re = re.compile(r'\\(\n|\r\n|\r)')
 
 
 def _re_partition(regex, s):
+    # type: (Pattern[str], str) -> Tuple[str, str, str]
     match = regex.search(s)
     if match:
         return s[:match.start()], s[slice(*match.span())], s[match.end():]
@@ -34,9 +62,10 @@ def _re_partition(regex, s):
         return (s, '', '')
 
 
-def src_to_tokens(src):
+def src_to_tokens(src):  # type: (str) -> List[Token]
     tokenize_target = io.StringIO(src)
-    lines = (None,) + tuple(tokenize_target)
+    lines = ('',) + tuple(tokenize_target)
+
     tokenize_target.seek(0)
 
     tokens = []
@@ -99,22 +128,25 @@ def src_to_tokens(src):
     return tokens
 
 
-def tokens_to_src(tokens):
+def tokens_to_src(tokens):  # type: (Iterable[Token]) -> str
     return ''.join(tok.src for tok in tokens)
 
 
 def reversed_enumerate(tokens):
+    # type: (Sequence[Token]) -> Generator[Tuple[int, Token], None, None]
     for i in reversed(range(len(tokens))):
         yield i, tokens[i]
 
 
-def parse_string_literal(src):
+def parse_string_literal(src):  # type: (str) -> Tuple[str, str]
     """parse a string literal's source into (prefix, string)"""
     match = _string_re.match(src)
+    assert match is not None
     return match.group(1), match.group(2)
 
 
 def rfind_string_parts(tokens, i):
+    # type: (Sequence[Token], int) -> Tuple[int, ...]
     """find the indicies of the string parts of a (joined) string literal
 
     - `i` should start at the end of the string literal
@@ -157,14 +189,14 @@ def rfind_string_parts(tokens, i):
     return tuple(reversed(ret))
 
 
-def main(argv=None):
+def main(argv=None):  # type: (Optional[Sequence[str]]) -> int
     parser = argparse.ArgumentParser()
     parser.add_argument('filename')
     args = parser.parse_args(argv)
     with io.open(args.filename) as f:
         tokens = src_to_tokens(f.read())
 
-    def no_u_repr(s):
+    def no_u_repr(s):  # type: (str) -> str
         return repr(s).lstrip('u')
 
     for token in tokens:
@@ -177,6 +209,8 @@ def main(argv=None):
                 line, col, token.name, no_u_repr(token.src),
             ),
         )
+
+    return 0
 
 
 if __name__ == '__main__':
