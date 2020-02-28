@@ -1,7 +1,3 @@
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
-import io
 import re
 
 import pytest
@@ -110,10 +106,10 @@ def test_src_to_tokens_escaped_nl_windows():
 
 @pytest.mark.parametrize('prefix', ('f', 'ur', 'rb', 'F', 'UR', 'RB'))
 def test_src_to_tokens_string_prefix_normalization(prefix):
-    src = "{}'foo'\n".format(prefix)
+    src = f"{prefix}'foo'\n"
     ret = src_to_tokens(src)
     assert ret == [
-        Token('STRING', "{}'foo'".format(prefix), line=1, utf8_byte_offset=0),
+        Token('STRING', f"{prefix}'foo'", line=1, utf8_byte_offset=0),
         Token('NEWLINE', '\n', line=1, utf8_byte_offset=5 + len(prefix)),
         Token('ENDMARKER', '', line=2, utf8_byte_offset=0),
     ]
@@ -130,10 +126,10 @@ def test_src_to_tokens_octal_literal_normalization():
 
 @pytest.mark.parametrize('postfix', ('l', 'L'))
 def test_src_to_tokens_long_literal_normalization(postfix):
-    src = '123{}\n'.format(postfix)
+    src = f'123{postfix}\n'
     ret = src_to_tokens(src)
     assert ret == [
-        Token('NUMBER', '123{}'.format(postfix), line=1, utf8_byte_offset=0),
+        Token('NUMBER', f'123{postfix}', line=1, utf8_byte_offset=0),
         Token('NEWLINE', '\n', line=1, utf8_byte_offset=4),
         Token('ENDMARKER', '', line=2, utf8_byte_offset=0),
     ]
@@ -148,7 +144,7 @@ def test_src_to_tokens_long_literal_normalization(postfix):
     ),
 )
 def test_roundtrip_tokenize(filename):
-    with io.open(filename) as f:
+    with open(filename) as f:
         contents = f.read()
     ret = tokens_to_src(src_to_tokens(contents))
     assert ret == contents
