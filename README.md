@@ -107,6 +107,7 @@ find the indices of the string parts of a (joined) string literal
 ## Sample usage
 
 - https://github.com/asottile/add-trailing-comma
+- https://github.com/asottile/future-annotations
 - https://github.com/asottile/future-fstrings
 - https://github.com/asottile/pyupgrade
 - https://github.com/asottile/yesqa
