@@ -133,6 +133,15 @@ def test_src_to_tokens_implicit_continue():
     ]
 
 
+def test_src_to_tokens_no_eol_eof():
+    ret = src_to_tokens('1')
+    assert ret == [
+        Token('NUMBER', '1', line=1, utf8_byte_offset=0),
+        Token('NEWLINE', '', line=1, utf8_byte_offset=1),
+        Token('ENDMARKER', '', line=2, utf8_byte_offset=0),
+    ]
+
+
 @pytest.mark.parametrize('prefix', ('f', 'ur', 'rb', 'F', 'UR', 'RB'))
 def test_src_to_tokens_string_prefix_normalization(prefix):
     src = f"{prefix}'foo'\n"
