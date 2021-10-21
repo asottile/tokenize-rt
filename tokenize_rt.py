@@ -88,14 +88,16 @@ def src_to_tokens(src: str) -> List[Token]:
                 last_line += 1
             if newtok:
                 tokens.append(Token(UNIMPORTANT_WS, newtok, sline, 0))
+                end_offset = len(newtok.encode())
+            else:
+                end_offset = 0
 
         elif scol > last_col:
-            tokens.append(
-                Token(UNIMPORTANT_WS, line[last_col:scol], sline, end_offset),
-            )
+            newtok = line[last_col:scol]
+            tokens.append(Token(UNIMPORTANT_WS, newtok, sline, end_offset))
+            end_offset += len(newtok.encode())
 
         tok_name = tokenize.tok_name[tok_type]
-        utf8_byte_offset = len(line[:scol].encode())
         # when a string prefix is not recognized, the tokenizer produces a
         # NAME token followed by a STRING token
         if (
@@ -122,9 +124,9 @@ def src_to_tokens(src: str) -> List[Token]:
         ):
             tokens[-1] = tokens[-1]._replace(src=tokens[-1].src + tok_text)
         else:
-            tokens.append(Token(tok_name, tok_text, sline, utf8_byte_offset))
+            tokens.append(Token(tok_name, tok_text, sline, end_offset))
         last_line, last_col = eline, ecol
-        end_offset = utf8_byte_offset + len(tok_text.encode())
+        end_offset += len(tok_text.encode())
 
     return tokens
 
