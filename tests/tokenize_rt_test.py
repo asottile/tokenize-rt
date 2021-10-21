@@ -288,9 +288,9 @@ def test_main(capsys):
     out, _ = capsys.readouterr()
     assert out == (
         "1:0 NAME 'x'\n"
-        "?:? UNIMPORTANT_WS ' '\n"
+        "1:1 UNIMPORTANT_WS ' '\n"
         "1:2 OP '='\n"
-        "?:? UNIMPORTANT_WS ' '\n"
+        "1:3 UNIMPORTANT_WS ' '\n"
         "1:4 NUMBER '5'\n"
         "1:5 NEWLINE '\\n'\n"
         "2:0 ENDMARKER ''\n"

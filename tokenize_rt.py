@@ -198,10 +198,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         tokens = src_to_tokens(f.read())
 
     for token in tokens:
-        if token.name == UNIMPORTANT_WS:
-            line, col = '?', '?'
-        else:
-            line, col = str(token.line), str(token.utf8_byte_offset)
+        line, col = str(token.line), str(token.utf8_byte_offset)
         print(f'{line}:{col} {token.name} {token.src!r}')
 
     return 0
