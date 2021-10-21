@@ -104,6 +104,35 @@ def test_src_to_tokens_escaped_nl_windows():
     ]
 
 
+def test_src_to_tokens_implicit_continue():
+    src = (
+        'x = (\n'
+        '    1,\n'
+        '    2,\n'
+        ')\n'
+    )
+    ret = src_to_tokens(src)
+    assert ret == [
+        Token(name='NAME', src='x', line=1, utf8_byte_offset=0),
+        Token(name='UNIMPORTANT_WS', src=' ', line=1, utf8_byte_offset=1),
+        Token(name='OP', src='=', line=1, utf8_byte_offset=2),
+        Token(name='UNIMPORTANT_WS', src=' ', line=1, utf8_byte_offset=3),
+        Token(name='OP', src='(', line=1, utf8_byte_offset=4),
+        Token(name='NL', src='\n', line=1, utf8_byte_offset=5),
+        Token(name='UNIMPORTANT_WS', src='    ', line=2, utf8_byte_offset=0),
+        Token(name='NUMBER', src='1', line=2, utf8_byte_offset=4),
+        Token(name='OP', src=',', line=2, utf8_byte_offset=5),
+        Token(name='NL', src='\n', line=2, utf8_byte_offset=6),
+        Token(name='UNIMPORTANT_WS', src='    ', line=3, utf8_byte_offset=0),
+        Token(name='NUMBER', src='2', line=3, utf8_byte_offset=4),
+        Token(name='OP', src=',', line=3, utf8_byte_offset=5),
+        Token(name='NL', src='\n', line=3, utf8_byte_offset=6),
+        Token(name='OP', src=')', line=4, utf8_byte_offset=0),
+        Token(name='NEWLINE', src='\n', line=4, utf8_byte_offset=1),
+        Token(name='ENDMARKER', src='', line=5, utf8_byte_offset=0),
+    ]
+
+
 @pytest.mark.parametrize('prefix', ('f', 'ur', 'rb', 'F', 'UR', 'RB'))
 def test_src_to_tokens_string_prefix_normalization(prefix):
     src = f"{prefix}'foo'\n"
