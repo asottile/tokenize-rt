@@ -142,6 +142,29 @@ def test_src_to_tokens_no_eol_eof():
     ]
 
 
+def test_src_to_tokens_multiline_string():
+    src = (
+        'x = """\n'
+        '  y\n'
+        '""".format(1)\n'
+    )
+    ret = src_to_tokens(src)
+    assert ret == [
+        Token(name='NAME', src='x', line=1, utf8_byte_offset=0),
+        Token(name='UNIMPORTANT_WS', src=' ', line=1, utf8_byte_offset=1),
+        Token(name='OP', src='=', line=1, utf8_byte_offset=2),
+        Token(name='UNIMPORTANT_WS', src=' ', line=1, utf8_byte_offset=3),
+        Token(name='STRING', src='"""\n  y\n"""', line=1, utf8_byte_offset=4),
+        Token(name='OP', src='.', line=3, utf8_byte_offset=3),
+        Token(name='NAME', src='format', line=3, utf8_byte_offset=4),
+        Token(name='OP', src='(', line=3, utf8_byte_offset=10),
+        Token(name='NUMBER', src='1', line=3, utf8_byte_offset=11),
+        Token(name='OP', src=')', line=3, utf8_byte_offset=12),
+        Token(name='NEWLINE', src='\n', line=3, utf8_byte_offset=13),
+        Token(name='ENDMARKER', src='', line=4, utf8_byte_offset=0),
+    ]
+
+
 @pytest.mark.parametrize('prefix', ('f', 'ur', 'rb', 'F', 'UR', 'RB'))
 def test_src_to_tokens_string_prefix_normalization(prefix):
     src = f"{prefix}'foo'\n"

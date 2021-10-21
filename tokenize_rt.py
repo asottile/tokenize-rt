@@ -126,7 +126,10 @@ def src_to_tokens(src: str) -> List[Token]:
         else:
             tokens.append(Token(tok_name, tok_text, sline, end_offset))
         last_line, last_col = eline, ecol
-        end_offset += len(tok_text.encode())
+        if sline != eline:
+            end_offset = len(lines[last_line][:last_col].encode())
+        else:
+            end_offset += len(tok_text.encode())
 
     return tokens
 
