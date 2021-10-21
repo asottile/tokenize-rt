@@ -87,9 +87,7 @@ def src_to_tokens(src: str) -> List[Token]:
                 end_offset = 0
                 last_line += 1
             if newtok:
-                tokens.append(
-                    Token(UNIMPORTANT_WS, newtok, last_line, end_offset),
-                )
+                tokens.append(Token(UNIMPORTANT_WS, newtok, sline, 0))
 
         elif scol > last_col:
             tokens.append(
