@@ -33,10 +33,9 @@ Construct a token
 - `name`: one of the token names listed in `token.tok_name` or
   `ESCAPED_NL` or `UNIMPORTANT_WS`
 - `src`: token's source as text
-- `line`: the line number that this token appears on.  This will be `None` for
-   `ESCAPED_NL` and `UNIMPORTANT_WS` tokens.
+- `line`: the line number that this token appears on.
 - `utf8_byte_offset`: the utf8 byte offset that this token appears on in the
-  line.  This will be `None` for `ESCAPED_NL` and `UNIMPORTANT_WS` tokens.
+  line.
 
 #### `tokenize_rt.Token.offset`
 
