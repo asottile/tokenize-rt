@@ -64,10 +64,10 @@ def src_to_tokens(src: str) -> List[Token]:
     tokens = []
     last_line = 1
     last_col = 0
+    end_offset = 0
 
-    for (
-            tok_type, tok_text, (sline, scol), (eline, ecol), line,
-    ) in tokenize.generate_tokens(tokenize_target.readline):
+    gen = tokenize.generate_tokens(tokenize_target.readline)
+    for tok_type, tok_text, (sline, scol), (eline, ecol), line in gen:
         if sline > last_line:
             newtok = lines[last_line][last_col:]
             for lineno in range(last_line + 1, sline):
@@ -79,16 +79,25 @@ def src_to_tokens(src: str) -> List[Token]:
             while _escaped_nl_re.search(newtok):
                 ws, nl, newtok = _re_partition(_escaped_nl_re, newtok)
                 if ws:
-                    tokens.append(Token(UNIMPORTANT_WS, ws))
-                tokens.append(Token(ESCAPED_NL, nl))
+                    tokens.append(
+                        Token(UNIMPORTANT_WS, ws, last_line, end_offset),
+                    )
+                    end_offset += len(ws.encode())
+                tokens.append(Token(ESCAPED_NL, nl, last_line, end_offset))
+                end_offset = 0
+                last_line += 1
             if newtok:
-                tokens.append(Token(UNIMPORTANT_WS, newtok))
+                tokens.append(
+                    Token(UNIMPORTANT_WS, newtok, last_line, end_offset),
+                )
 
         elif scol > last_col:
-            tokens.append(Token(UNIMPORTANT_WS, line[last_col:scol]))
+            tokens.append(
+                Token(UNIMPORTANT_WS, line[last_col:scol], sline, end_offset),
+            )
 
         tok_name = tokenize.tok_name[tok_type]
-        utf8_byte_offset = len(line[:scol].encode('UTF-8'))
+        utf8_byte_offset = len(line[:scol].encode())
         # when a string prefix is not recognized, the tokenizer produces a
         # NAME token followed by a STRING token
         if (
@@ -117,6 +126,7 @@ def src_to_tokens(src: str) -> List[Token]:
         else:
             tokens.append(Token(tok_name, tok_text, sline, utf8_byte_offset))
         last_line, last_col = eline, ecol
+        end_offset = utf8_byte_offset + len(tok_text.encode())
 
     return tokens
 

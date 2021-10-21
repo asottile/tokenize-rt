@@ -39,9 +39,9 @@ def test_src_to_tokens_simple():
     ret = src_to_tokens(src)
     assert ret == [
         Token('NAME', 'x', line=1, utf8_byte_offset=0),
-        Token(UNIMPORTANT_WS, ' ', line=None, utf8_byte_offset=None),
+        Token(UNIMPORTANT_WS, ' ', line=1, utf8_byte_offset=1),
         Token('OP', '=', line=1, utf8_byte_offset=2),
-        Token(UNIMPORTANT_WS, ' ', line=None, utf8_byte_offset=None),
+        Token(UNIMPORTANT_WS, ' ', line=1, utf8_byte_offset=3),
         Token('NUMBER', '5', line=1, utf8_byte_offset=4),
         Token('NEWLINE', '\n', line=1, utf8_byte_offset=5),
         Token('ENDMARKER', '', line=2, utf8_byte_offset=0),
@@ -56,11 +56,11 @@ def test_src_to_tokens_escaped_nl():
     ret = src_to_tokens(src)
     assert ret == [
         Token('NAME', 'x', line=1, utf8_byte_offset=0),
-        Token(UNIMPORTANT_WS, ' ', line=None, utf8_byte_offset=None),
+        Token(UNIMPORTANT_WS, ' ', line=1, utf8_byte_offset=1),
         Token('OP', '=', line=1, utf8_byte_offset=2),
-        Token(UNIMPORTANT_WS, ' ', line=None, utf8_byte_offset=None),
-        Token(ESCAPED_NL, '\\\n', line=None, utf8_byte_offset=None),
-        Token(UNIMPORTANT_WS, '    ', line=None, utf8_byte_offset=None),
+        Token(UNIMPORTANT_WS, ' ', line=1, utf8_byte_offset=3),
+        Token(ESCAPED_NL, '\\\n', line=1, utf8_byte_offset=4),
+        Token(UNIMPORTANT_WS, '    ', line=2, utf8_byte_offset=0),
         Token('NUMBER', '5', line=2, utf8_byte_offset=4),
         Token('NEWLINE', '\n', line=2, utf8_byte_offset=5),
         Token('ENDMARKER', '', line=3, utf8_byte_offset=0),
@@ -75,10 +75,10 @@ def test_src_to_tokens_escaped_nl_no_left_ws():
     ret = src_to_tokens(src)
     assert ret == [
         Token('NAME', 'x', line=1, utf8_byte_offset=0),
-        Token(UNIMPORTANT_WS, ' ', line=None, utf8_byte_offset=None),
+        Token(UNIMPORTANT_WS, ' ', line=1, utf8_byte_offset=1),
         Token('OP', '=', line=1, utf8_byte_offset=2),
-        Token(ESCAPED_NL, '\\\n', line=None, utf8_byte_offset=None),
-        Token(UNIMPORTANT_WS, '    ', line=None, utf8_byte_offset=None),
+        Token(ESCAPED_NL, '\\\n', line=1, utf8_byte_offset=3),
+        Token(UNIMPORTANT_WS, '    ', line=2, utf8_byte_offset=0),
         Token('NUMBER', '5', line=2, utf8_byte_offset=4),
         Token('NEWLINE', '\n', line=2, utf8_byte_offset=5),
         Token('ENDMARKER', '', line=3, utf8_byte_offset=0),
@@ -93,11 +93,11 @@ def test_src_to_tokens_escaped_nl_windows():
     ret = src_to_tokens(src)
     assert ret == [
         Token('NAME', 'x', line=1, utf8_byte_offset=0),
-        Token(UNIMPORTANT_WS, ' ', line=None, utf8_byte_offset=None),
+        Token(UNIMPORTANT_WS, ' ', line=1, utf8_byte_offset=1),
         Token('OP', '=', line=1, utf8_byte_offset=2),
-        Token(UNIMPORTANT_WS, ' ', line=None, utf8_byte_offset=None),
-        Token(ESCAPED_NL, '\\\r\n', line=None, utf8_byte_offset=None),
-        Token(UNIMPORTANT_WS, '    ', line=None, utf8_byte_offset=None),
+        Token(UNIMPORTANT_WS, ' ', line=1, utf8_byte_offset=3),
+        Token(ESCAPED_NL, '\\\r\n', line=1, utf8_byte_offset=4),
+        Token(UNIMPORTANT_WS, '    ', line=2, utf8_byte_offset=0),
         Token('NUMBER', '5', line=2, utf8_byte_offset=4),
         Token('NEWLINE', '\r\n', line=2, utf8_byte_offset=5),
         Token('ENDMARKER', '', line=3, utf8_byte_offset=0),
@@ -159,9 +159,9 @@ def test_reversed_enumerate():
     assert rest == [
         (5, Token(name='NEWLINE', src='\n', line=1, utf8_byte_offset=5)),
         (4, Token('NUMBER', '5', line=1, utf8_byte_offset=4)),
-        (3, Token(UNIMPORTANT_WS, ' ')),
+        (3, Token(UNIMPORTANT_WS, ' ', line=1, utf8_byte_offset=3)),
         (2, Token('OP', '=', line=1, utf8_byte_offset=2)),
-        (1, Token(UNIMPORTANT_WS, ' ')),
+        (1, Token(UNIMPORTANT_WS, ' ', line=1, utf8_byte_offset=1)),
         (0, Token('NAME', 'x', line=1, utf8_byte_offset=0)),
     ]
 
