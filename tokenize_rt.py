@@ -14,10 +14,10 @@ from typing import Sequence
 from typing import Tuple
 
 # this is a performance hack.  see https://bugs.python.org/issue43014
-if (
+if (  # pragma: no branch
         sys.version_info < (3, 10) and
         callable(getattr(tokenize, '_compile', None))
-):  # pragma: no cover (<py310)
+):  # pragma: <3.10 cover
     from functools import lru_cache
     tokenize._compile = lru_cache()(tokenize._compile)  # type: ignore
 
