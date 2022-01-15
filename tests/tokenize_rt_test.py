@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import re
 
 import pytest
@@ -315,8 +317,10 @@ def test_rfind_string_parts_parenthesized(src, n, expected_i):
     assert rfind_string_parts(tokens, n) == (expected_i,)
 
 
-def test_main(capsys):
-    main(('testing/resources/simple.py',))
+def test_main(capsys, tmp_path):
+    f = tmp_path.joinpath('simple.py')
+    f.write_text('x = 5\n')
+    main((str(f),))
     out, _ = capsys.readouterr()
     assert out == (
         "1:0 NAME 'x'\n"
