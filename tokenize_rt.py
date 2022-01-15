@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import argparse
 import io
 import keyword
@@ -6,12 +8,9 @@ import sys
 import tokenize
 from typing import Generator
 from typing import Iterable
-from typing import List
 from typing import NamedTuple
-from typing import Optional
 from typing import Pattern
 from typing import Sequence
-from typing import Tuple
 
 # this is a performance hack.  see https://bugs.python.org/issue43014
 if (  # pragma: no branch
@@ -27,15 +26,15 @@ NON_CODING_TOKENS = frozenset(('COMMENT', ESCAPED_NL, 'NL', UNIMPORTANT_WS))
 
 
 class Offset(NamedTuple):
-    line: Optional[int] = None
-    utf8_byte_offset: Optional[int] = None
+    line: int | None = None
+    utf8_byte_offset: int | None = None
 
 
 class Token(NamedTuple):
     name: str
     src: str
-    line: Optional[int] = None
-    utf8_byte_offset: Optional[int] = None
+    line: int | None = None
+    utf8_byte_offset: int | None = None
 
     @property
     def offset(self) -> Offset:
@@ -47,7 +46,7 @@ _string_prefixes = frozenset('bfru')
 _escaped_nl_re = re.compile(r'\\(\n|\r\n|\r)')
 
 
-def _re_partition(regex: Pattern[str], s: str) -> Tuple[str, str, str]:
+def _re_partition(regex: Pattern[str], s: str) -> tuple[str, str, str]:
     match = regex.search(s)
     if match:
         return s[:match.start()], s[slice(*match.span())], s[match.end():]
@@ -55,7 +54,7 @@ def _re_partition(regex: Pattern[str], s: str) -> Tuple[str, str, str]:
         return (s, '', '')
 
 
-def src_to_tokens(src: str) -> List[Token]:
+def src_to_tokens(src: str) -> list[Token]:
     tokenize_target = io.StringIO(src)
     lines = ('',) + tuple(tokenize_target)
 
@@ -140,19 +139,19 @@ def tokens_to_src(tokens: Iterable[Token]) -> str:
 
 def reversed_enumerate(
         tokens: Sequence[Token],
-) -> Generator[Tuple[int, Token], None, None]:
+) -> Generator[tuple[int, Token], None, None]:
     for i in reversed(range(len(tokens))):
         yield i, tokens[i]
 
 
-def parse_string_literal(src: str) -> Tuple[str, str]:
+def parse_string_literal(src: str) -> tuple[str, str]:
     """parse a string literal's source into (prefix, string)"""
     match = _string_re.match(src)
     assert match is not None
     return match.group(1), match.group(2)
 
 
-def rfind_string_parts(tokens: Sequence[Token], i: int) -> Tuple[int, ...]:
+def rfind_string_parts(tokens: Sequence[Token], i: int) -> tuple[int, ...]:
     """find the indicies of the string parts of a (joined) string literal
 
     - `i` should start at the end of the string literal
@@ -195,7 +194,7 @@ def rfind_string_parts(tokens: Sequence[Token], i: int) -> Tuple[int, ...]:
     return tuple(reversed(ret))
 
 
-def main(argv: Optional[Sequence[str]] = None) -> int:
+def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument('filename')
     args = parser.parse_args(argv)
