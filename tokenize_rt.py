@@ -18,7 +18,7 @@ if (  # pragma: no branch
         callable(getattr(tokenize, '_compile', None))
 ):  # pragma: <3.10 cover
     from functools import lru_cache
-    tokenize._compile = lru_cache()(tokenize._compile)  # type: ignore
+    tokenize._compile = lru_cache()(tokenize._compile)
 
 ESCAPED_NL = 'ESCAPED_NL'
 UNIMPORTANT_WS = 'UNIMPORTANT_WS'
