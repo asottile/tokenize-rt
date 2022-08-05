@@ -15,7 +15,9 @@ python tokenization.
 
 ## Installation
 
-`pip install tokenize-rt`
+```bash
+pip install tokenize-rt
+```
 
 ## Usage
 
