@@ -42,7 +42,6 @@ class Token(NamedTuple):
 
 
 _string_re = re.compile('^([^\'"]*)(.*)$', re.DOTALL)
-_string_prefixes = frozenset('bfru')
 _escaped_nl_re = re.compile(r'\\(\n|\r\n|\r)')
 
 
@@ -97,33 +96,7 @@ def src_to_tokens(src: str) -> list[Token]:
             end_offset += len(newtok.encode())
 
         tok_name = tokenize.tok_name[tok_type]
-        # when a string prefix is not recognized, the tokenizer produces a
-        # NAME token followed by a STRING token
-        if (
-                tok_name == 'STRING' and
-                tokens and
-                tokens[-1].name == 'NAME' and
-                frozenset(tokens[-1].src.lower()) <= _string_prefixes
-        ):
-            newsrc = tokens[-1].src + tok_text
-            tokens[-1] = tokens[-1]._replace(src=newsrc, name=tok_name)
-        # produce octal literals as a single token in python 3 as well
-        elif (
-                tok_name == 'NUMBER' and
-                tokens and
-                tokens[-1].name == 'NUMBER'
-        ):
-            tokens[-1] = tokens[-1]._replace(src=tokens[-1].src + tok_text)
-        # produce long literals as a single token in python 3 as well
-        elif (
-                tok_name == 'NAME' and
-                tok_text.lower() == 'l' and
-                tokens and
-                tokens[-1].name == 'NUMBER'
-        ):
-            tokens[-1] = tokens[-1]._replace(src=tokens[-1].src + tok_text)
-        else:
-            tokens.append(Token(tok_name, tok_text, sline, end_offset))
+        tokens.append(Token(tok_name, tok_text, sline, end_offset))
         last_line, last_col = eline, ecol
         if sline != eline:
             end_offset = len(lines[last_line][:last_col].encode())
