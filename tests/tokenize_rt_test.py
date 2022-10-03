@@ -167,37 +167,6 @@ def test_src_to_tokens_multiline_string():
     ]
 
 
-@pytest.mark.parametrize('prefix', ('f', 'ur', 'rb', 'F', 'UR', 'RB'))
-def test_src_to_tokens_string_prefix_normalization(prefix):
-    src = f"{prefix}'foo'\n"
-    ret = src_to_tokens(src)
-    assert ret == [
-        Token('STRING', f"{prefix}'foo'", line=1, utf8_byte_offset=0),
-        Token('NEWLINE', '\n', line=1, utf8_byte_offset=5 + len(prefix)),
-        Token('ENDMARKER', '', line=2, utf8_byte_offset=0),
-    ]
-
-
-def test_src_to_tokens_octal_literal_normalization():
-    ret = src_to_tokens('0755\n')
-    assert ret == [
-        Token('NUMBER', '0755', line=1, utf8_byte_offset=0),
-        Token('NEWLINE', '\n', line=1, utf8_byte_offset=4),
-        Token('ENDMARKER', '', line=2, utf8_byte_offset=0),
-    ]
-
-
-@pytest.mark.parametrize('postfix', ('l', 'L'))
-def test_src_to_tokens_long_literal_normalization(postfix):
-    src = f'123{postfix}\n'
-    ret = src_to_tokens(src)
-    assert ret == [
-        Token('NUMBER', f'123{postfix}', line=1, utf8_byte_offset=0),
-        Token('NEWLINE', '\n', line=1, utf8_byte_offset=4),
-        Token('ENDMARKER', '', line=2, utf8_byte_offset=0),
-    ]
-
-
 @pytest.mark.parametrize(
     'filename',
     (
