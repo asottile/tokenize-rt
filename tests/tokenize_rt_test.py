@@ -37,6 +37,14 @@ def test_token_offset():
     assert token.offset == Offset(line=1, utf8_byte_offset=2)
 
 
+def test_token_matches():
+    token = Token('NAME', 'x', line=1, utf8_byte_offset=2)
+    assert token.matches(name='NAME', src='x')
+    assert not token.matches(name='OP', src='x')
+    assert not token.matches(name='NAME', src='y')
+    assert not token.matches(name='OP', src=':')
+
+
 def test_src_to_tokens_simple():
     src = 'x = 5\n'
     ret = src_to_tokens(src)
