@@ -40,6 +40,9 @@ class Token(NamedTuple):
     def offset(self) -> Offset:
         return Offset(self.line, self.utf8_byte_offset)
 
+    def matches(self, *, name: str, src: str) -> bool:
+        return self.name == name and self.src == src
+
 
 _string_re = re.compile('^([^\'"]*)(.*)$', re.DOTALL)
 _escaped_nl_re = re.compile(r'\\(\n|\r\n|\r)')
