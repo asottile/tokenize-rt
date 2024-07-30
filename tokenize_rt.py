@@ -115,7 +115,7 @@ def tokens_to_src(tokens: Iterable[Token]) -> str:
 
 def reversed_enumerate(
         tokens: Sequence[Token],
-) -> Generator[tuple[int, Token], None, None]:
+) -> Generator[tuple[int, Token]]:
     for i in reversed(range(len(tokens))):
         yield i, tokens[i]
 
