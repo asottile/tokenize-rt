@@ -176,6 +176,31 @@ def test_src_to_tokens_multiline_string():
     ]
 
 
+def test_src_to_tokens_fstring_with_escapes():
+    src = 'f" a {{ {b} }} c"'
+    ret = src_to_tokens(src)
+    if sys.version_info >= (3, 12):  # pragma: >=3.12 cover
+        assert ret == [
+            Token(name='FSTRING_START', src='f"', line=1, utf8_byte_offset=0),
+            Token(name='FSTRING_MIDDLE', src=' a {{', line=1, utf8_byte_offset=2),  # noqa: E501
+            Token(name='FSTRING_MIDDLE', src=' ', line=1, utf8_byte_offset=7),
+            Token(name='OP', src='{', line=1, utf8_byte_offset=8),
+            Token(name='NAME', src='b', line=1, utf8_byte_offset=9),
+            Token(name='OP', src='}', line=1, utf8_byte_offset=10),
+            Token(name='FSTRING_MIDDLE', src=' }}', line=1, utf8_byte_offset=11),  # noqa: E501
+            Token(name='FSTRING_MIDDLE', src=' c', line=1, utf8_byte_offset=14),  # noqa: E501
+            Token(name='FSTRING_END', src='"', line=1, utf8_byte_offset=16),
+            Token(name='NEWLINE', src='', line=1, utf8_byte_offset=17),
+            Token(name='ENDMARKER', src='', line=2, utf8_byte_offset=0),
+        ]
+    else:  # pragma: <3.12 cover
+        assert ret == [
+            Token(name='STRING', src='f" a {{ {b} }} c"', line=1, utf8_byte_offset=0),  # noqa: E501
+            Token(name='NEWLINE', src='', line=1, utf8_byte_offset=17),
+            Token(name='ENDMARKER', src='', line=2, utf8_byte_offset=0),
+        ]
+
+
 @pytest.mark.parametrize(
     'filename',
     (
