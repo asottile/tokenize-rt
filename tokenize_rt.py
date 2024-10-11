@@ -6,11 +6,11 @@ import keyword
 import re
 import sys
 import tokenize
-from typing import Generator
-from typing import Iterable
+from collections.abc import Generator
+from collections.abc import Iterable
+from collections.abc import Sequence
+from re import Pattern
 from typing import NamedTuple
-from typing import Pattern
-from typing import Sequence
 
 # this is a performance hack.  see https://bugs.python.org/issue43014
 if (  # pragma: no branch
