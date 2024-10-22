@@ -47,6 +47,16 @@ class Token(NamedTuple):
 _string_re = re.compile('^([^\'"]*)(.*)$', re.DOTALL)
 _escaped_nl_re = re.compile(r'\\(\n|\r\n|\r)')
 
+NAMED_UNICODE_RE = re.compile(r'(?<!\\)(?:\\\\)*(\\N\{[^}]+\})')
+
+
+def curly_escape(s: str) -> str:
+    parts = NAMED_UNICODE_RE.split(s)
+    return ''.join(
+        part.replace('{', '{{').replace('}', '}}') if i % 2 == 0 else part
+        for i, part in enumerate(parts)
+    )
+
 
 def _re_partition(regex: Pattern[str], s: str) -> tuple[str, str, str]:
     match = regex.search(s)
@@ -101,8 +111,10 @@ def src_to_tokens(src: str) -> list[Token]:
         tok_name = tokenize.tok_name[tok_type]
 
         if tok_name == 'FSTRING_MIDDLE':  # pragma: >=3.12 cover
-            ecol += tok_text.count('{') + tok_text.count('}')
-            tok_text = tok_text.replace('{', '{{').replace('}', '}}')
+            if '{' in tok_text or '}' in tok_text:
+                new_tok_text = curly_escape(tok_text)
+                ecol += len(new_tok_text) - len(tok_text)
+                tok_text = new_tok_text
 
         tokens.append(Token(tok_name, tok_text, sline, end_offset))
         last_line, last_col = eline, ecol
