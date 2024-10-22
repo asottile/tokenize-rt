@@ -6,6 +6,7 @@ import sys
 import pytest
 
 from tokenize_rt import _re_partition
+from tokenize_rt import curly_escape
 from tokenize_rt import ESCAPED_NL
 from tokenize_rt import main
 from tokenize_rt import Offset
@@ -201,6 +202,26 @@ def test_src_to_tokens_fstring_with_escapes():
         ]
 
 
+def test_src_to_tokens_fstring_with_named_escapes():
+    src = r'f" \N{SNOWMAN} "'
+    ret = src_to_tokens(src)
+    if sys.version_info >= (3, 12):  # pragma: >=3.12 cover
+        assert ret == [
+            Token(name='FSTRING_START', src='f"', line=1, utf8_byte_offset=0),
+            Token(name='FSTRING_MIDDLE', src=' \\N{SNOWMAN}', line=1, utf8_byte_offset=2),  # noqa: E501
+            Token(name='FSTRING_MIDDLE', src=' ', line=1, utf8_byte_offset=14),
+            Token(name='FSTRING_END', src='"', line=1, utf8_byte_offset=15),
+            Token(name='NEWLINE', src='', line=1, utf8_byte_offset=16),
+            Token(name='ENDMARKER', src='', line=2, utf8_byte_offset=0),
+        ]
+    else:  # pragma: <3.12 cover
+        assert ret == [
+            Token(name='STRING', src='f" \\N{SNOWMAN} "', line=1, utf8_byte_offset=0),  # noqa: E501
+            Token(name='NEWLINE', src='', line=1, utf8_byte_offset=16),
+            Token(name='ENDMARKER', src='', line=2, utf8_byte_offset=0),
+        ]
+
+
 @pytest.mark.parametrize(
     'filename',
     (
@@ -343,3 +364,16 @@ def test_main(capsys, tmp_path):
         "1:5 NEWLINE '\\n'\n"
         "2:0 ENDMARKER ''\n"
     )
+
+
+@pytest.mark.parametrize(
+    ('s', 'expected'),
+    (
+        ('', ''),
+        ('{foo}', '{{foo}}'),
+        (r'\N{SNOWMAN}', r'\N{SNOWMAN}'),
+        (r'\N{SNOWMAN} {bar}', r'\N{SNOWMAN} {{bar}}'),
+    ),
+)
+def test_curly_escape(s, expected):
+    assert curly_escape(s) == expected
