@@ -110,7 +110,7 @@ def src_to_tokens(src: str) -> list[Token]:
 
         tok_name = tokenize.tok_name[tok_type]
 
-        if tok_name == 'FSTRING_MIDDLE':  # pragma: >=3.12 cover
+        if tok_name in {'FSTRING_MIDDLE', 'TSTRING_MIDDLE'}:  # pragma: >=3.12 cover  # noqa: E501
             if '{' in tok_text or '}' in tok_text:
                 new_tok_text = curly_escape(tok_text)
                 ecol += len(new_tok_text) - len(tok_text)
