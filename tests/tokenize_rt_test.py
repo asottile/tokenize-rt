@@ -202,6 +202,25 @@ def test_src_to_tokens_fstring_with_escapes():
         ]
 
 
+@pytest.mark.skipif(sys.version_info < (3, 14), reason='3.14+')
+def test_src_to_tokens_tstring_with_escapes():  # pragma: >=3.14 cover
+    src = 't" a {{ {b} }} c"'
+    ret = src_to_tokens(src)
+    assert ret == [
+        Token(name='TSTRING_START', src='t"', line=1, utf8_byte_offset=0),
+        Token(name='TSTRING_MIDDLE', src=' a {{', line=1, utf8_byte_offset=2),  # noqa: E501
+        Token(name='TSTRING_MIDDLE', src=' ', line=1, utf8_byte_offset=7),
+        Token(name='OP', src='{', line=1, utf8_byte_offset=8),
+        Token(name='NAME', src='b', line=1, utf8_byte_offset=9),
+        Token(name='OP', src='}', line=1, utf8_byte_offset=10),
+        Token(name='TSTRING_MIDDLE', src=' }}', line=1, utf8_byte_offset=11),  # noqa: E501
+        Token(name='TSTRING_MIDDLE', src=' c', line=1, utf8_byte_offset=14),  # noqa: E501
+        Token(name='TSTRING_END', src='"', line=1, utf8_byte_offset=16),
+        Token(name='NEWLINE', src='', line=1, utf8_byte_offset=17),
+        Token(name='ENDMARKER', src='', line=2, utf8_byte_offset=0),
+    ]
+
+
 def test_src_to_tokens_fstring_with_named_escapes():
     src = r'f" \N{SNOWMAN} "'
     ret = src_to_tokens(src)
