@@ -4,21 +4,12 @@ import argparse
 import io
 import keyword
 import re
-import sys
 import tokenize
 from collections.abc import Generator
 from collections.abc import Iterable
 from collections.abc import Sequence
 from re import Pattern
 from typing import NamedTuple
-
-# this is a performance hack.  see https://bugs.python.org/issue43014
-if (  # pragma: no branch
-        sys.version_info < (3, 10) and
-        callable(getattr(tokenize, '_compile', None))
-):  # pragma: <3.10 cover
-    from functools import lru_cache
-    tokenize._compile = lru_cache(tokenize._compile)
 
 ESCAPED_NL = 'ESCAPED_NL'
 UNIMPORTANT_WS = 'UNIMPORTANT_WS'
