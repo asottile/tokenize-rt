@@ -182,8 +182,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument('filename')
     args = parser.parse_args(argv)
-    with open(args.filename) as f:
-        tokens = src_to_tokens(f.read())
+    with open(args.filename, 'rb') as f:
+        data = io.BytesIO(f.read())
+    encoding, _ = tokenize.detect_encoding(data.readline)
+    data.seek(0)
+    with io.TextIOWrapper(data, encoding=encoding) as source:
+        tokens = src_to_tokens(source.read())
 
     for token in tokens:
         line, col = str(token.line), str(token.utf8_byte_offset)

@@ -369,9 +369,10 @@ def test_rfind_string_parts_parenthesized(src, n, expected_i):
     assert rfind_string_parts(tokens, n) == (expected_i,)
 
 
-def test_main(capsys, tmp_path):
+@pytest.mark.parametrize('newline', (b'\n', b'\r\n', b'\r'))
+def test_main(capsys, tmp_path, newline):
     f = tmp_path.joinpath('simple.py')
-    f.write_text('x = 5\n')
+    f.write_bytes(b'x = 5' + newline)
     main((str(f),))
     out, _ = capsys.readouterr()
     assert out == (
@@ -383,6 +384,36 @@ def test_main(capsys, tmp_path):
         "1:5 NEWLINE '\\n'\n"
         "2:0 ENDMARKER ''\n"
     )
+
+
+def test_main_source_encoding(capsys, tmp_path):
+    f = tmp_path.joinpath('latin1.py')
+    f.write_bytes(b'# coding: latin-1\r\nx = "caf\xe9"\r\n')
+
+    main((str(f),))
+
+    out, _ = capsys.readouterr()
+    assert out.splitlines() == [
+        "1:0 COMMENT '# coding: latin-1'",
+        "1:17 NL '\\n'",
+        "2:0 NAME 'x'",
+        "2:1 UNIMPORTANT_WS ' '",
+        "2:2 OP '='",
+        "2:3 UNIMPORTANT_WS ' '",
+        """2:4 STRING '"café"'""",
+        "2:11 NEWLINE '\\n'",
+        "3:0 ENDMARKER ''",
+    ]
+
+
+def test_main_utf8_bom(capsys, tmp_path):
+    f = tmp_path.joinpath('bom.py')
+    f.write_bytes(b'\xef\xbb\xbfx\n')
+
+    main((str(f),))
+
+    out, _ = capsys.readouterr()
+    assert out == "1:0 NAME 'x'\n1:1 NEWLINE '\\n'\n2:0 ENDMARKER ''\n"
 
 
 @pytest.mark.parametrize(
